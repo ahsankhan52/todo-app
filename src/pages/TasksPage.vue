@@ -41,18 +41,26 @@
 
 <script setup>
 import { onMounted, computed, ref } from 'vue';
-import { allTasks, createTask, updateTask, completeTask, deleteTask } from '../http/task-api';
+import { createTask, updateTask, completeTask, deleteTask } from '../http/task-api';
+
+import { storeToRefs } from 'pinia';
+import { useTaskStore } from '../store/task';
+
 import Tasks from '../components/Tasks/Tasks.vue';
 import NewTask from '../components/Tasks/NewTask.vue';
 
-const tasks = ref([]);
+// const tasks = ref([]);
+const store = useTaskStore();
+
+const { completedTasks, uncompletedTasks } = storeToRefs(store)
+const { fetchAllTasks } = store
+
+
+
 onMounted (async () => {
-    const { data } = await allTasks()
-    tasks.value = data.data;
+    await fetchAllTasks();
 });
 
-const completedTasks = computed(() => tasks.value.filter(task => task.is_completed));
-const uncompletedTasks = computed(() => tasks.value.filter(task => !task.is_completed));
 
 const completedTasksIsVisible = computed(() => 
     uncompletedTasks.value.length === 0 || completedTasks.value.length > 0
@@ -88,7 +96,7 @@ const handleCompletedTask = async (task) => {
 const handleRemovedTask = async (task) => {
     await deleteTask(task.id);
 
-    // tasks.value = tasks.value.filter(item => item.id !== task.id);
+    // tasks.value = tasks.value.filter(item => item.id !== task.id); OR 2 lines below
     const index = tasks.value.findIndex(item => item.id === task.id);
     tasks.value.splice(index, 1);
 }

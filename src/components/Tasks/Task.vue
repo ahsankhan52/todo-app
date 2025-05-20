@@ -38,8 +38,6 @@ import TaskActions from './TaskAction.vue';
 
 const emits = defineEmits(['updated' ,'completed', 'removed']);
 
-
-
 const isEdit = ref(false)
 const props = defineProps({
     task: Object,
